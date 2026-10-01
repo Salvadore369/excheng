@@ -32,7 +32,7 @@ export default function SettingsScreen() {
     setTimeout(() => setSaved(false), 1600);
   };
 
-  const showLiveInfo = () => Alert.alert("معامله زنده غیرفعال است", "این نسخه موبایل فقط برای پایش، تحقیق و PAPER طراحی شده است. برای اجرای زنده از برنامه دسکتاپ پس از بررسی کامل کد و حساب استفاده کنید.");
+  const showLiveInfo = () => Alert.alert("معامله زنده غیرفعال است", "این نسخه موبایل MTFlow فقط برای توسعه، پایش و تحقیق طراحی شده است. اتصال به VPS و اجرای سفارش در این اپ پیاده‌سازی نشده است.");
 
   return (
     <ScreenContainer className="px-5" containerClassName="bg-background">
@@ -66,7 +66,7 @@ export default function SettingsScreen() {
         </Pressable>
 
         <View style={styles.footer}>
-          <Text style={[styles.version, { color: colors.muted }]}>CodexBot Mobile · نسخه ۰.۱</Text>
+          <Text style={[styles.version, { color: colors.muted }]}>MTFlow Mobile · نسخه MVP</Text>
           {saved && <Text style={[styles.saved, { color: "#5CE1B8" }]}>ذخیره شد</Text>}
         </View>
       </ScrollView>

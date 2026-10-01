@@ -8,7 +8,8 @@ export type IconSymbolName =
   | "shield.fill" | "arrow.triangle.2.circlepath" | "exclamationmark.triangle.fill"
   | "waveform.path.ecg" | "star.fill" | "star" | "info.circle.fill" | "chevron.right"
   | "checkmark.seal.fill" | "play.fill" | "lock.shield.fill" | "checkmark.shield.fill"
-  | "bell.fill" | "bolt.fill";
+  | "bell.fill" | "bolt.fill" | "folder.fill" | "code" | "terminal.fill"
+  | "plus" | "xmark" | "square.and.arrow.down" | "server.rack";
 
 const MAPPING: Record<IconSymbolName, MaterialIconName> = {
   "house.fill": "home",
@@ -29,6 +30,13 @@ const MAPPING: Record<IconSymbolName, MaterialIconName> = {
   "checkmark.shield.fill": "verified-user",
   "bell.fill": "notifications",
   "bolt.fill": "bolt",
+  "folder.fill": "folder-open",
+  code: "code",
+  "terminal.fill": "terminal",
+  plus: "add",
+  xmark: "close",
+  "square.and.arrow.down": "save",
+  "server.rack": "dns",
 };
 
 export function IconSymbol({ name, size = 24, color, style }: { name: IconSymbolName; size?: number; color: string | OpaqueColorValue; style?: StyleProp<TextStyle>; weight?: string }) {
