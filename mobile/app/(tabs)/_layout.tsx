@@ -29,6 +29,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: "خانه", tabBarIcon: ({ color }) => <IconSymbol name="house.fill" size={22} color={color} /> }} />
+      <Tabs.Screen name="projects" options={{ title: "پروژه", tabBarIcon: ({ color }) => <IconSymbol name="folder.fill" size={22} color={color} /> }} />
       <Tabs.Screen name="markets" options={{ title: "بازار", tabBarIcon: ({ color }) => <IconSymbol name="chart.bar.fill" size={22} color={color} /> }} />
       <Tabs.Screen name="backtest" options={{ title: "بک‌تست", tabBarIcon: ({ color }) => <IconSymbol name="clock.arrow.circlepath" size={22} color={color} /> }} />
       <Tabs.Screen name="settings" options={{ title: "تنظیمات", tabBarIcon: ({ color }) => <IconSymbol name="gearshape.fill" size={22} color={color} /> }} />

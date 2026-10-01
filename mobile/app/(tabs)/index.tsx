@@ -1,30 +1,29 @@
-import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useMemo } from "react";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 
-const accent = "#5CE1B8";
-
-function formatPrice(value: string | null) {
-  return value ?? "—";
-}
+const ACCENT = "#5CE1B8";
 
 export default function HomeScreen() {
   const colors = useColors();
-  const [connected, setConnected] = useState(false);
-  const [paperArmed, setPaperArmed] = useState(false);
-
-  const statusText = useMemo(() => {
-    if (connected) return "داده بازار متصل است";
-    return "در انتظار اتصال داده بازار";
-  }, [connected]);
+  const router = useRouter();
+  const services = useMemo(() => [
+    { label: "VPS ویندوز", status: "وصل نیست", icon: "server.rack" as const },
+    { label: "MetaTrader 5", status: "وصل نیست", icon: "chart.bar.fill" as const },
+    { label: "کامپایلر MQL5", status: "پیکربندی نشده", icon: "code" as const },
+  ], []);
 
   const tap = async () => {
-    if (process.env.EXPO_OS !== "web") {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    if (process.env.EXPO_OS !== "web") await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const go = async (route: "/projects" | "/markets" | "/backtest") => {
+    await tap();
+    router.push(route);
   };
 
   return (
@@ -32,125 +31,111 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View>
-            <Text style={[styles.eyebrow, { color: colors.muted }]}>CODعX / WORKSPACE</Text>
-            <Text style={[styles.title, { color: colors.foreground }]}>سلام، معامله‌گر</Text>
+            <Text style={[styles.eyebrow, { color: colors.muted }]}>MTFLOW / MOBILE CONTROL</Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>میزکار شما</Text>
           </View>
-          <View style={[styles.statusDot, { backgroundColor: connected ? accent : colors.warning }]} />
+          <View style={styles.brandMark}><Image source={require("@/assets/images/mtflow-mark.png")} style={styles.brandImage} resizeMode="contain" /></View>
         </View>
 
-        <View style={[styles.modeCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <View style={styles.modeTopline}>
-            <View style={styles.modeLabelRow}>
-              <View style={[styles.pulse, { backgroundColor: paperArmed ? accent : colors.warning }]} />
-              <Text style={[styles.modeLabel, { color: colors.foreground }]}>PAPER MODE</Text>
-            </View>
-            <Text style={[styles.modeHint, { color: colors.muted }]}>بدون سفارش واقعی</Text>
+        <View style={[styles.heroCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.heroTopline}>
+            <View style={styles.heroBadge}><View style={styles.statusDot} /><Text style={styles.heroBadgeText}>آفلاین</Text></View>
+            <Text style={[styles.heroHint, { color: colors.muted }]}>نیازمند اتصال VPS</Text>
           </View>
-          <Text style={[styles.balanceLabel, { color: colors.muted }]}>ارزش حساب</Text>
-          <Text style={[styles.balance, { color: colors.foreground }]}>—</Text>
-          <View style={styles.divider} />
-          <View style={styles.metricRow}>
-            <View>
-              <Text style={[styles.metricLabel, { color: colors.muted }]}>بازده امروز</Text>
-              <Text style={[styles.metricValue, { color: colors.muted }]}>داده‌ای موجود نیست</Text>
-            </View>
-            <View style={styles.metricRight}>
-              <Text style={[styles.metricLabel, { color: colors.muted }]}>ریسک هر معامله</Text>
-              <Text style={[styles.metricValue, { color: accent }]}>۰.۵٪ پیش‌فرض</Text>
-            </View>
+          <Text style={[styles.heroTitle, { color: colors.foreground }]}>کنترل امن MT5</Text>
+          <Text style={[styles.heroCopy, { color: colors.muted }]}>گوشی میزکار و مرکز کنترل است؛ اجرای MetaTrader و اکسپرت‌ها باید روی VPS ویندوز انجام شود.</Text>
+          <View style={styles.paperRow}>
+            <View style={styles.paperIcon}><IconSymbol name="lock.shield.fill" size={18} color={ACCENT} /></View>
+            <View style={{ flex: 1 }}><Text style={[styles.paperTitle, { color: colors.foreground }]}>حالت ایمن · PAPER</Text><Text style={[styles.paperSub, { color: colors.muted }]}>هیچ سفارش واقعی از این اپ ارسال نمی‌شود.</Text></View>
+            <View style={styles.lockPill}><Text style={styles.lockPillText}>قفل LIVE</Text></View>
           </View>
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>بازار تحت نظر</Text>
-          <Text style={[styles.sectionMeta, { color: colors.muted }]}>{statusText}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>وضعیت اجزا</Text>
+          <Text style={[styles.sectionMeta, { color: colors.muted }]}>اتصال زنده برقرار نشده</Text>
         </View>
-        <View style={[styles.marketCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <View style={styles.marketIcon}>
-            <IconSymbol name="chart.bar.fill" size={20} color={accent} />
-          </View>
-          <View style={styles.marketInfo}>
-            <Text style={[styles.marketSymbol, { color: colors.foreground }]}>BTCUSDT</Text>
-            <Text style={[styles.marketSub, { color: colors.muted }]}>Bitunix Perpetual · 5m</Text>
-          </View>
-          <View style={styles.marketPrice}>
-            <Text style={[styles.price, { color: colors.foreground }]}>{formatPrice(null)}</Text>
-            <Text style={[styles.priceChange, { color: colors.muted }]}>اتصال لازم است</Text>
-          </View>
+        <View style={styles.serviceList}>
+          {services.map((service) => (
+            <View key={service.label} style={[styles.serviceCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={styles.serviceIcon}><IconSymbol name={service.icon} size={19} color={ACCENT} /></View>
+              <View style={styles.serviceCopy}><Text style={[styles.serviceName, { color: colors.foreground }]}>{service.label}</Text><Text style={[styles.serviceState, { color: colors.muted }]}>{service.status}</Text></View>
+              <View style={styles.offlineDot} />
+            </View>
+          ))}
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>اقدام سریع</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>فضای توسعه</Text>
+          <Text style={[styles.sectionMeta, { color: colors.muted }]}>محلی روی دستگاه</Text>
         </View>
         <View style={styles.actionsGrid}>
-          <Pressable
-            onPress={async () => {
-              await tap();
-              setPaperArmed((value) => !value);
-            }}
-            style={({ pressed }) => [styles.actionCard, { backgroundColor: paperArmed ? "#173B35" : colors.surface, borderColor: paperArmed ? accent : colors.border }, pressed && styles.pressed]}
-          >
-            <IconSymbol name="shield.fill" size={21} color={paperArmed ? accent : colors.foreground} />
-            <Text style={[styles.actionTitle, { color: colors.foreground }]}>{paperArmed ? "PAPER فعال" : "فعال‌سازی PAPER"}</Text>
-            <Text style={[styles.actionSub, { color: colors.muted }]}>اجرای محلی و بدون ریسک</Text>
-          </Pressable>
-          <Pressable
-            onPress={async () => {
-              await tap();
-              setConnected((value) => !value);
-            }}
-            style={({ pressed }) => [styles.actionCard, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && styles.pressed]}
-          >
-            <IconSymbol name="arrow.triangle.2.circlepath" size={21} color={colors.foreground} />
-            <Text style={[styles.actionTitle, { color: colors.foreground }]}>{connected ? "قطع داده بازار" : "بررسی اتصال"}</Text>
-            <Text style={[styles.actionSub, { color: colors.muted }]}>فقط داده عمومی بازار</Text>
-          </Pressable>
+          <ActionCard icon="folder.fill" title="پروژه‌ها" description="قالب MQL5 و Python" colors={colors} onPress={() => go("/projects")} />
+          <ActionCard icon="clock.arrow.circlepath" title="آزمایش" description="آماده‌سازی بک‌تست" colors={colors} onPress={() => go("/backtest")} />
         </View>
+        <Pressable onPress={() => go("/markets")} style={({ pressed }) => [styles.marketLink, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && styles.pressed]}>
+          <View style={styles.marketIcon}><IconSymbol name="chart.bar.fill" size={19} color={ACCENT} /></View>
+          <View style={{ flex: 1 }}><Text style={[styles.actionTitle, { color: colors.foreground }]}>Market Data</Text><Text style={[styles.actionSub, { color: colors.muted }]}>واچ‌لیست نمادهای MT5 · بدون قیمت ساختگی</Text></View>
+          <IconSymbol name="chevron.right" size={18} color={colors.muted} />
+        </Pressable>
 
         <View style={[styles.notice, { backgroundColor: "#182A27", borderColor: "#2B5349" }]}>
-          <IconSymbol name="exclamationmark.triangle.fill" size={18} color={colors.warning} />
-          <Text style={[styles.noticeText, { color: "#D8F4EA" }]}>معامله زنده از این نسخه موبایل غیرفعال است. قبل از هر تصمیم، داده و استراتژی را شخصاً اعتبارسنجی کنید.</Text>
+          <IconSymbol name="info.circle.fill" size={18} color={ACCENT} />
+          <Text style={[styles.noticeText, { color: "#D8F4EA" }]}>نمونه اولیه هنوز به VPS، MetaTrader 5 یا منبع داده بازار متصل نیست. وضعیت‌ها عمداً آفلاین نمایش داده می‌شوند.</Text>
         </View>
       </ScrollView>
     </ScreenContainer>
   );
 }
 
+function ActionCard({ icon, title, description, colors, onPress }: { icon: "folder.fill" | "clock.arrow.circlepath"; title: string; description: string; colors: ReturnType<typeof useColors>; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.actionCard, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && styles.pressed]}>
+      <IconSymbol name={icon} size={20} color={ACCENT} />
+      <Text style={[styles.actionTitle, { color: colors.foreground }]}>{title}</Text>
+      <Text style={[styles.actionSub, { color: colors.muted }]}>{description}</Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  content: { paddingTop: 12, paddingBottom: 32, gap: 16 },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
-  eyebrow: { fontSize: 11, letterSpacing: 1.8, fontWeight: "700" },
+  content: { paddingTop: 12, paddingBottom: 34, gap: 15 },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 3 },
+  eyebrow: { fontSize: 10, letterSpacing: 1.5, fontWeight: "800" },
   title: { fontSize: 28, fontWeight: "800", marginTop: 5 },
-  statusDot: { width: 12, height: 12, borderRadius: 6, marginRight: 4 },
-  modeCard: { borderWidth: 1, borderRadius: 24, padding: 20 },
-  modeTopline: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  modeLabelRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  pulse: { width: 8, height: 8, borderRadius: 4 },
-  modeLabel: { fontSize: 12, fontWeight: "800", letterSpacing: 1.4 },
-  modeHint: { fontSize: 11 },
-  balanceLabel: { fontSize: 12, marginTop: 28 },
-  balance: { fontSize: 38, fontWeight: "800", marginTop: 4 },
-  divider: { height: 1, backgroundColor: "#29413B", marginVertical: 18 },
-  metricRow: { flexDirection: "row", justifyContent: "space-between" },
-  metricRight: { alignItems: "flex-end" },
-  metricLabel: { fontSize: 11 },
-  metricValue: { fontSize: 13, fontWeight: "700", marginTop: 5 },
-  sectionHeader: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", marginTop: 4 },
-  sectionTitle: { fontSize: 17, fontWeight: "800" },
-  sectionMeta: { fontSize: 11 },
-  marketCard: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "center" },
-  marketIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: "#173B35", alignItems: "center", justifyContent: "center" },
-  marketInfo: { marginLeft: 12, flex: 1 },
-  marketSymbol: { fontSize: 15, fontWeight: "800" },
-  marketSub: { fontSize: 11, marginTop: 4 },
-  marketPrice: { alignItems: "flex-end" },
-  price: { fontSize: 16, fontWeight: "800" },
-  priceChange: { fontSize: 10, marginTop: 4 },
-  actionsGrid: { flexDirection: "row", gap: 10 },
-  actionCard: { flex: 1, borderRadius: 18, borderWidth: 1, padding: 15, minHeight: 125 },
-  actionTitle: { fontSize: 13, fontWeight: "800", marginTop: 18 },
-  actionSub: { fontSize: 10, lineHeight: 16, marginTop: 5 },
-  pressed: { opacity: 0.78, transform: [{ scale: 0.98 }] },
-  notice: { borderRadius: 16, borderWidth: 1, padding: 14, flexDirection: "row", gap: 10, alignItems: "flex-start" },
-  noticeText: { flex: 1, fontSize: 11, lineHeight: 18 },
+  brandMark: { width: 44, height: 44, borderRadius: 15, backgroundColor: "#173B35", alignItems: "center", justifyContent: "center" },
+  brandImage: { width: 34, height: 34 },
+  heroCard: { borderWidth: 1, borderRadius: 23, padding: 17 },
+  heroTopline: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  heroBadge: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, backgroundColor: "#32291D" },
+  statusDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#E8B86D" },
+  heroBadgeText: { color: "#E8B86D", fontSize: 10, fontWeight: "800" },
+  heroHint: { fontSize: 10 },
+  heroTitle: { fontSize: 20, fontWeight: "800", marginTop: 19 },
+  heroCopy: { fontSize: 11, lineHeight: 18, marginTop: 6 },
+  paperRow: { borderTopWidth: 1, borderTopColor: "#29413B", marginTop: 15, paddingTop: 14, flexDirection: "row", alignItems: "center", gap: 9 },
+  paperIcon: { width: 35, height: 35, borderRadius: 12, backgroundColor: "#234A40", alignItems: "center", justifyContent: "center" },
+  paperTitle: { fontSize: 11, fontWeight: "800" },
+  paperSub: { fontSize: 9, marginTop: 3 },
+  lockPill: { backgroundColor: "#24302D", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6 },
+  lockPillText: { color: ACCENT, fontSize: 9, fontWeight: "800" },
+  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginTop: 2 },
+  sectionTitle: { fontSize: 15, fontWeight: "800" },
+  sectionMeta: { fontSize: 9 },
+  serviceList: { gap: 7 },
+  serviceCard: { minHeight: 57, borderWidth: 1, borderRadius: 15, paddingHorizontal: 11, flexDirection: "row", alignItems: "center" },
+  serviceIcon: { width: 34, height: 34, borderRadius: 11, backgroundColor: "#173B35", alignItems: "center", justifyContent: "center" },
+  serviceCopy: { flex: 1, marginLeft: 10 },
+  serviceName: { fontSize: 11, fontWeight: "800" },
+  serviceState: { fontSize: 9, marginTop: 3 },
+  offlineDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#E8B86D" },
+  actionsGrid: { flexDirection: "row", gap: 9 },
+  actionCard: { flex: 1, borderRadius: 16, borderWidth: 1, padding: 13, minHeight: 105 },
+  actionTitle: { fontSize: 12, fontWeight: "800", marginTop: 12 },
+  actionSub: { fontSize: 9, lineHeight: 15, marginTop: 4 },
+  marketLink: { borderWidth: 1, borderRadius: 16, padding: 12, flexDirection: "row", alignItems: "center", gap: 10 },
+  marketIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: "#173B35", alignItems: "center", justifyContent: "center" },
+  notice: { borderRadius: 15, borderWidth: 1, padding: 12, flexDirection: "row", gap: 9, alignItems: "flex-start" },
+  noticeText: { flex: 1, fontSize: 9, lineHeight: 16 },
+  pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
 });
